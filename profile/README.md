@@ -25,3 +25,15 @@ proxy, and TMDB.
 git clone https://github.com/open-ott-play/ottplay-foss.git
 cd ottplay-foss
 npm install && npm run build
+```
+
+### [ottplay-swop](https://github.com/open-ott-play/ottplay-swop)
+
+Cloudflare Worker for one-time session handoff (phone types text for the TV when
+they are on different networks). TV/desktop calls are gated by an **allowlisted
+Device UUID** — public FOSS installs cannot use our KV without an operator
+allowlist entry.
+
+- Repo: https://github.com/open-ott-play/ottplay-swop
+- Access control: https://github.com/open-ott-play/ottplay-swop#access-control
+- Player side: see ottplay-foss README (Remote text entry / swop)
