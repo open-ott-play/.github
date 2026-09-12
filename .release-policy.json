@@ -1,0 +1,16 @@
+{
+  "repository": "open-ott-play/.github",
+  "mode": "validation-only",
+  "default_branch": "main",
+  "validation_workflows": [
+    "validate.yml",
+    "codeql.yml"
+  ],
+  "local_checks": [
+    "bash scripts/ci.sh"
+  ],
+  "notes": [
+    "Community/static site syntax validation; this is not an application release pipeline."
+  ],
+  "visibility": "public"
+}
