@@ -34,4 +34,6 @@ jobs:
             .github/workflows/auto-approve.yml \
             .github/workflows/auto-merge.yml \
             .github/workflows/codeql.yml \
+            .github/workflows/quality-gate.yml \
+            .github/workflows/validate.yml \
             .github/workflows/workflow-validation.yml
