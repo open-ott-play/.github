@@ -7,8 +7,9 @@ organization.
    [org page](https://github.com/open-ott-play).
 2. **Logo assets** — [`assets/`](assets/) (SVG source + rendered PNG used as the org avatar).
 
-Product docs, code, Docker, and the Rust server live in
-[ottplay-foss](https://github.com/open-ott-play/ottplay-foss).
+Use the [project directory](profile/README.md) to choose a player, shared core
+or companion service. Product documentation and release instructions live in
+the repository that owns each component.
 
 <!-- ci-release-process:start -->
 ## CI and deployment
