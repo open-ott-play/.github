@@ -18,7 +18,6 @@ jobs:
     permissions:
       contents: read
       actions: read
-      security-events: write
   check-1:
     uses: ./.github/workflows/codeql.yml
     permissions:
