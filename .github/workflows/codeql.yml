@@ -2,19 +2,19 @@ name: CodeQL
 
 on:
   workflow_call: {}
-  pull_request:
-    branches: [main]
-  push:
-    branches: [main]
 
 permissions:
   contents: read
 
 jobs:
   analyze:
-    name: Analyze workflows
+    name: Analyze (${{ matrix.language }})
     runs-on: ubuntu-latest
     timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        language: [actions, python]
     permissions:
       actions: read
       contents: read
@@ -32,8 +32,8 @@ jobs:
       - name: Initialize workflow analysis
         uses: github/codeql-action/init@ff2f1c621b7f889edc0d3c761ac2e6a3f8cdb0dd # v4.37.7
         with:
-          languages: actions
-      - name: Analyze workflows
+          languages: ${{ matrix.language }}
+      - name: Analyze (${{ matrix.language }})
         uses: github/codeql-action/analyze@ff2f1c621b7f889edc0d3c761ac2e6a3f8cdb0dd # v4.37.7
         with:
-          category: /language:actions
+          category: /language:${{ matrix.language }}
