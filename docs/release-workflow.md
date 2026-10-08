@@ -1,54 +1,50 @@
-# CI and release operations — open-ott-play/.github
+# Community repository validation
 
-The source of truth is `.release-policy.json`. `quality-gate.yml` runs the callable
-validation workflows and produces the required **CI gate** status on every PR
-and merge-queue commit. Missing, failed and skipped validation workflows fail
-the gate. Workflow and lockfile changes are included in validation.
+This repository publishes an organization profile and stores CI automation. It
+has no application package, release channel, deployment job or device runtime.
+The policy in [`.release-policy.json`](../.release-policy.json) is
+`validation-only`; the local release client rejects application release requests.
 
 ## Local checks
 
-Use Python 3.11+ for the CLI and the project toolchains documented in `scripts/ci.sh`.
-The scripts fail on missing dependencies and do not publish anything during checks.
+Install Python 3.12, Node.js, Bash and actionlint 1.7.12. Use an isolated Python
+environment and the committed hash lock:
 
-```bash
+```sh
+python3 -m venv .venv
+. .venv/bin/activate
+python3 -m pip install --require-hashes --only-binary=:all: -r .github/requirements-validation.txt
 python3 scripts/release.py check
-python3 scripts/release.py status
+python3 scripts/release.py doctor
 ```
 
-Callable validation workflows:
-- `.github/workflows/validate.yml`
-- `.github/workflows/codeql.yml`
+The checker parses Python, JSON and YAML, checks shell and JavaScript syntax,
+and runs actionlint. YAML tags are parsed without constructing custom objects
+or resolving includes. Failures report paths and line numbers rather than
+source configuration values. These are syntax and automation checks, not tests
+of application or hardware behavior. The `doctor` command reports the local
+validation-only policy and does not require a release environment.
 
-## Nightly validation and deployment
+## Hosted checks
 
-This repository uses validation-only policy: PR/merge queue checks and staggered
-nightly validation. It does not publish synthetic application beta/RC releases.
-Infrastructure deployments remain manual and use the checks and explicit source
-approval declared by their deployment workflow. Terraform validation uses backend-disabled
-copies; a green syntax/validate job is not a reviewed plan or a deployment.
+[`quality-gate.yml`](../.github/workflows/quality-gate.yml) runs for pull requests,
+merge-queue entries, main pushes, scheduled validation and manual requests. It
+calls three workflows:
 
-## Project limits and rollout requirements
+- `validate.yml`: hash-locked YAML parser, checksum-verified actionlint and the
+  same local checks;
+- `codeql.yml`: separate Python and GitHub Actions analysis, invoked through the
+  quality gate so ordinary pull requests do not launch duplicate scans;
+- `dependency-review.yml`: checks dependency changes on pull requests.
 
-- Community/static site syntax validation; this is not an application release pipeline.
+The final **CI gate** requires every called validation job to succeed. The
+separate workflow-validation job also validates automation changes. Scorecard
+reports supply-chain findings in GitHub Security; its reports are evidence,
+not a separate product certification. Review reported findings and retain the
+existing review requirements when changing these workflows.
 
-For public repositories, merge and verify the workflows before enabling the
-additive Terraform **CI gate** ruleset. Where release/deployment workflows use
-environments, configure reviewers and default-branch-only policies. The governance
-repositories contain `release-standards.tf` and opt-in examples for public
-repositories only. Do not extend these requirements to private repositories by
-buying a plan or to workflows that have not landed.
-
-Existing review/security rules remain in force. Physical hardware, real
-credentials/streams and production access are not implied by unit tests or builds.
-
-The release engine/client are vendored from `victron-venus/venus-os-ci-toolkit`.
-They are excluded from consumer-specific formatting/type policy. Application
-release workflows run the mandatory Release tooling contracts job; validation-only
-projects receive the local client, whose contracts run in the toolkit. Update the toolkit source, then run
-`python3 scripts/install_release.py /path/to/consumer` from the toolkit checkout;
-add `--check` to detect drift without writing files. The installer is not vendored
-into consumer repositories.
-
-References: [GitHub schedules](https://docs.github.com/en/actions/reference/workflows-and-actions/events-that-trigger-workflows#schedule),
-[protected environments](https://docs.github.com/en/actions/how-tos/deploy/configure-and-manage-deployments/manage-environments),
-[artifact provenance](https://docs.github.com/en/rest/actions/artifacts).
+The local release client is vendored from `victron-venus/venus-os-ci-toolkit`.
+Its general client tests run in that toolkit. Keep repository-specific policy
+and validation changes reviewed together; do not add artificial beta/RC tags
+for this community profile. See [CONTRIBUTING.md](../CONTRIBUTING.md) and
+[SECURITY.md](../SECURITY.md) for contribution and vulnerability reporting.
