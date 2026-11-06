@@ -2,12 +2,25 @@
   "repository": "open-ott-play/.github",
   "mode": "validation-only",
   "default_branch": "main",
-  "validation_workflows": ["validate.yml", "codeql.yml", "dependency-review.yml"],
+  "validation_workflows": [
+    "validate.yml",
+    "codeql.yml",
+    "dependency-review.yml"
+  ],
   "local_checks": [
     "bash scripts/ci.sh"
   ],
   "notes": [
     "Community/static site syntax validation; this is not an application release pipeline."
   ],
-  "visibility": "public"
+  "visibility": "public",
+  "change_scope": {
+    "documentation_paths": [
+      "profile/README.md"
+    ],
+    "required_paths": [],
+    "always_validate_workflows": [
+      "codeql.yml"
+    ]
+  }
 }
