@@ -5,7 +5,9 @@ organization.
 
 1. **Organization profile** — [`profile/README.md`](profile/README.md), shown on the
    [org page](https://github.com/open-ott-play).
-2. **Logo assets** — [`assets/`](assets/) (SVG source + rendered PNG used as the org avatar).
+2. **Logo and diagram assets** — [`assets/`](assets/) holds the SVG source and rendered
+   PNG used as the org avatar; [`profile/assets/`](profile/assets/) holds the profile
+   banner and the architecture and release-pipeline diagrams.
 
 Use the [project directory](profile/README.md) to choose a player, shared core
 or companion service. Product documentation and release instructions live in
