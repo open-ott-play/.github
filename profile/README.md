@@ -112,7 +112,7 @@ Choose the repository that owns the behaviour: shared provider and domain rules 
 
 Report vulnerabilities privately through the affected repository's **Security → Report a vulnerability** form, not in a public issue. Use the [.github private advisory form](https://github.com/open-ott-play/.github/security/advisories/new) for this profile repository.
 
-Players, core and services are MIT licensed; [outpace-acestream](https://github.com/open-ott-play/outpace-acestream) is AGPL-3.0-or-later. Third-party notices and upstream attribution are retained in each repository.
+Players, core and services are MIT licensed, with two exceptions. The separate [native LG webOS player](https://github.com/open-ott-play/ottplay-foss/tree/main/native/webos) and its patches are GPL-3.0-or-later, as recorded in its `COPYING` and license notes. [outpace-acestream](https://github.com/open-ott-play/outpace-acestream) is AGPL-3.0-or-later. Third-party notices and upstream attribution are retained in each repository.
 
 ---
 
