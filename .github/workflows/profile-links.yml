@@ -49,7 +49,7 @@ jobs:
             echo
             cat "$REPORT"
             echo
-            echo "This issue is updated by the workflow on every scheduled failure."
+            echo "This issue is updated on every scheduled failure and closed automatically once the check passes again."
           } > issue-body.md
           number="$(gh issue list --repo "$GITHUB_REPOSITORY" --state open --limit 100 \
             --json number,title --jq 'first(.[] | select(.title == "Profile links check is failing") | .number) // ""')"
@@ -59,3 +59,17 @@ jobs:
           else
             gh issue create --repo "$GITHUB_REPOSITORY" --title "Profile links check is failing" --body-file issue-body.md
           fi
+      - name: Close the broken-link issue after a passing run
+        if: github.event_name == 'schedule' && steps.check.outcome == 'success'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          run_url="$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
+          gh issue list --repo "$GITHUB_REPOSITORY" --state open --limit 100 \
+            --json number,title --jq '.[] | select(.title == "Profile links check is failing") | .number' \
+          | while read -r number; do
+            gh issue close "$number" --repo "$GITHUB_REPOSITORY" --reason completed \
+              --comment "The scheduled Profile links check passed again: $run_url"
+            echo "Closed issue #$number"
+          done
