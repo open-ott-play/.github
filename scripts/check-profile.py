@@ -88,6 +88,7 @@ def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--offline", action="store_true", help="check files and SVGs without network requests")
     parser.add_argument("--timeout", type=float, default=20.0)
+    parser.add_argument("--report", type=Path, help="write the problems as a Markdown list to this file")
     arguments = parser.parse_args()
 
     problems: list[str] = []
@@ -133,7 +134,11 @@ def main() -> int:
         print("Profile check failed:", file=sys.stderr)
         for problem in problems:
             print(f"  {problem}", file=sys.stderr)
+        if arguments.report:
+            arguments.report.write_text("".join(f"- {problem}\n" for problem in problems), encoding="utf-8")
         return 1
+    if arguments.report:
+        arguments.report.unlink(missing_ok=True)
     print(
         f"Profile check passed: {len(DOCUMENTS)} documents, {local_count} local references, "
         f"{len(svgs)} diagrams, {checked} external links"
