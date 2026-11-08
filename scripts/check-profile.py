@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Read-only check of profile links and diagrams; does not render GitHub pages."""
+"""Read-only check of profile links, anchors and diagrams; does not render GitHub pages."""
 from __future__ import annotations
 
 import argparse
@@ -17,6 +17,10 @@ ROOT = Path(__file__).resolve().parents[1]
 DOCUMENTS = (ROOT / "profile" / "README.md", ROOT / "README.md")
 SVG_ROOT = ROOT / "profile" / "assets"
 LINK = re.compile(r"!?\[[^\]]*\]\(\s*(?P<target>[^)\s]+)")
+HEADING = re.compile(r"^ {0,3}#{1,6}[ \t]+(?P<text>.*?)[ \t]*#*[ \t]*$")
+FENCE = re.compile(r"^ {0,3}(?:```|~~~)")
+HTML_ID = re.compile(r"""<a\s[^>]*?(?:id|name)\s*=\s*["'](?P<name>[^"']+)["']""", re.IGNORECASE)
+HTML_ANCHOR_LINK = re.compile(r"""href\s*=\s*["']#(?P<fragment>[^"']*)["']""", re.IGNORECASE)
 EXTERNAL = re.compile(r"^https?://", re.IGNORECASE)
 SELF_CONTAINED = re.compile(r"""(?:href|src)\s*=\s*["']\s*(?:https?:)?//""", re.IGNORECASE)
 STYLE_IMPORT = re.compile(r"@import|url\(\s*['\"]?(?:https?:)?//", re.IGNORECASE)
@@ -29,6 +33,83 @@ def markdown_targets(path: Path) -> list[tuple[str, int]]:
     for number, line in enumerate(path.read_text(encoding="utf-8").splitlines(), start=1):
         targets.extend((match.group("target"), number) for match in LINK.finditer(line))
     return targets
+
+
+def markdown_headings(text: str) -> list[str]:
+    """Heading texts GitHub renders, skipping fenced code and HTML comments."""
+    headings: list[str] = []
+    fenced = False
+    commented = False
+    for line in text.splitlines():
+        if commented:
+            if "-->" not in line:
+                continue
+            line = line.split("-->", 1)[1]
+            commented = False
+        while "<!--" in line:
+            before, after = line.split("<!--", 1)
+            if "-->" in after:
+                line = before + after.split("-->", 1)[1]
+            else:
+                line = before
+                commented = True
+                break
+        if FENCE.match(line):
+            fenced = not fenced
+            continue
+        if fenced:
+            continue
+        match = HEADING.match(line)
+        if match:
+            headings.append(match.group("text"))
+    return headings
+
+
+def slugify(heading: str) -> str:
+    """Approximate GitHub's heading anchor: inline markup removed, punctuation dropped."""
+    text = re.sub(r"<[^>]+>", "", heading)
+    text = re.sub(r"!\[([^\]]*)\]\([^)]*\)", r"\1", text)
+    text = re.sub(r"\[([^\]]*)\]\([^)]*\)", r"\1", text)
+    text = re.sub(r"(?<!\w)_([^_]+)_(?!\w)", r"\1", text)
+    text = re.sub(r"[*`~]", "", text)
+    text = re.sub(r"[^\w\s-]", "", text.lower())
+    return text.strip().replace(" ", "-")
+
+
+def heading_slugs(text: str) -> set[str]:
+    """Every anchor GitHub generates for the headings, including suffixed duplicates."""
+    slugs: set[str] = set()
+    occurrences: dict[str, int] = {}
+    for heading in markdown_headings(text):
+        base = slugify(heading)
+        if not base:
+            continue
+        slug = base
+        while slug in slugs:
+            occurrences[base] = occurrences.get(base, 0) + 1
+            slug = f"{base}-{occurrences[base]}"
+        slugs.add(slug)
+    return slugs
+
+
+def document_anchors(path: Path, cache: dict[Path, set[str]]) -> set[str]:
+    if path not in cache:
+        text = path.read_text(encoding="utf-8")
+        cache[path] = heading_slugs(text) | {match.group("name") for match in HTML_ID.finditer(text)}
+    return cache[path]
+
+
+def anchor_references(path: Path) -> list[tuple[str, int]]:
+    references: list[tuple[str, int]] = []
+    for number, line in enumerate(path.read_text(encoding="utf-8").splitlines(), start=1):
+        for match in LINK.finditer(line):
+            target = match.group("target")
+            if target.startswith("#") and len(target) > 1:
+                references.append((urllib.parse.unquote(target[1:]), number))
+        for match in HTML_ANCHOR_LINK.finditer(line):
+            if match.group("fragment"):
+                references.append((urllib.parse.unquote(match.group("fragment")), number))
+    return references
 
 
 def local_path(document: Path, target: str) -> Path | None:
@@ -94,6 +175,8 @@ def main() -> int:
     problems: list[str] = []
     external: dict[str, str] = {}
     local_count = 0
+    anchors_checked = 0
+    anchor_cache: dict[Path, set[str]] = {}
     for document in DOCUMENTS:
         if not document.is_file():
             problems.append(f"{document.relative_to(ROOT)}: missing")
@@ -112,6 +195,20 @@ def main() -> int:
             local_count += 1
             if not resolved.exists():
                 problems.append(f"{document.relative_to(ROOT)}:{line}: broken path {target}")
+            elif resolved.is_file() and resolved.suffix.lower() == ".md":
+                fragment = urllib.parse.unquote(urllib.parse.urlsplit(target).fragment)
+                if fragment:
+                    anchors_checked += 1
+                    if fragment not in document_anchors(resolved, anchor_cache):
+                        problems.append(f"{document.relative_to(ROOT)}:{line}: missing anchor {target}")
+
+    for document in DOCUMENTS:
+        if not document.is_file():
+            continue
+        for fragment, line in anchor_references(document):
+            anchors_checked += 1
+            if fragment not in document_anchors(document, anchor_cache):
+                problems.append(f"{document.relative_to(ROOT)}:{line}: missing anchor #{fragment}")
 
     svgs = sorted(SVG_ROOT.rglob("*.svg")) if SVG_ROOT.is_dir() else []
     if not svgs:
@@ -141,7 +238,7 @@ def main() -> int:
         arguments.report.unlink(missing_ok=True)
     print(
         f"Profile check passed: {len(DOCUMENTS)} documents, {local_count} local references, "
-        f"{len(svgs)} diagrams, {checked} external links"
+        f"{anchors_checked} anchors, {len(svgs)} diagrams, {checked} external links"
         + (" (network skipped)" if arguments.offline else "")
     )
     print("GitHub rendering, redirects after the first response and link rot after the run are outside this check.")
