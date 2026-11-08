@@ -17,14 +17,24 @@
 
 **Contents**
 
-- [Start here](#start-here)
-- [Players](#players)
-- [Shared core](#shared-core)
-- [Optional companions](#optional-companions)
-- [How the pieces fit](#how-the-pieces-fit)
-- [Documentation](#documentation)
-- [Release and verification](#release-and-verification)
-- [Contributing and security](#contributing-and-security)
+<table>
+  <tr>
+    <td><a href="#start-here">Start here</a></td>
+    <td><a href="#players">Players</a></td>
+  </tr>
+  <tr>
+    <td><a href="#shared-core">Shared core</a></td>
+    <td><a href="#optional-companions">Optional companions</a></td>
+  </tr>
+  <tr>
+    <td><a href="#how-the-pieces-fit">How the pieces fit</a></td>
+    <td><a href="#documentation">Documentation</a></td>
+  </tr>
+  <tr>
+    <td><a href="#release-and-verification">Release and verification</a></td>
+    <td><a href="#contributing-and-security">Contributing and security</a></td>
+  </tr>
+</table>
 
 ## Start here
 
