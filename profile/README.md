@@ -10,6 +10,7 @@
   <a href="https://github.com/open-ott-play/ottplay-foss"><img src="https://img.shields.io/badge/license-MIT-34d399?style=flat-square" alt="License: MIT"></a>
   <a href="https://github.com/open-ott-play/outpace-acestream"><img src="https://img.shields.io/badge/engine-AGPL--3.0-fbbf24?style=flat-square" alt="Engine license: AGPL-3.0"></a>
   <a href="https://www.bestpractices.dev/projects/15593"><img src="https://www.bestpractices.dev/projects/15593/badge" alt="OpenSSF Best Practices"></a>
+  <a href="https://github.com/open-ott-play/.github/actions/workflows/profile-links.yml"><img src="https://img.shields.io/github/actions/workflow/status/open-ott-play/.github/profile-links.yml?style=flat-square&label=profile%20links" alt="Profile links check"></a>
 </p>
 
 **Open OTT Play** builds open-source IPTV/OTT software for smart TVs, set-top boxes, phones and browsers. Every player runs on the playlist or provider account you already have: there is no subscription, no built-in catalogue, and no permission to access a source implied by the software. Companion services are optional, self-hosted, and configured separately from playback.
