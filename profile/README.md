@@ -15,7 +15,7 @@
 
 **Open OTT Play** builds open-source IPTV/OTT software for smart TVs, set-top boxes, phones and browsers. Every player runs on the playlist or provider account you already have: there is no subscription, no built-in catalogue, and no permission to access a source implied by the software. Companion services are optional, self-hosted, and configured separately from playback.
 
-**Contents** — [Start here](#start-here) · [Players](#players) · [Shared core](#shared-core) · [Optional companions](#optional-companions) · [How the pieces fit](#how-the-pieces-fit) · [Documentation](#documentation) · [Release and verification](#release-and-verification) · [Contributing and security](#contributing-and-security)
+**Contents** — [Start here](#start-here) · [Players](#players) · [Shared core](#shared-core) · [Optional companions](#optional-companions) · [How the pieces fit](#how-the-pieces-fit) · [Documentation](#documentation) · [Release and verification](#release-and-verification) · [Contributing and security](#contributing-and-security)
 
 ## Start here
 
