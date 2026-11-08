@@ -26,7 +26,7 @@ jobs:
       - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
         with:
           python-version: '3.12'
-      - name: Check every profile link and diagram
+      - name: Check every profile link, anchor and diagram
         id: check
         run: python3 scripts/check-profile.py --report profile-links-report.md
       - name: Open or update the broken-link issue
